@@ -8,3 +8,5 @@ FEC Data and header file: www.fec.gov/finance/disclosure/ftpdet.shtml
 Zipcode to CBSA data: https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
 
 Info on CBSAs: https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
+
+Academic paper that matching algorithm is roughly based on: http://goodliffe.byu.edu/papers/linkage.pdf
