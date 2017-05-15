@@ -1,4 +1,42 @@
+import re
+import csv
 
+def get_indices_of_keys(filename = "data/indiv_header_file.csv"):
+	'''
+	Makes a field to key dictionary from the header file for the
+	individual contribution dataset.
+	'''
+	f = open(filename)
+	s = f.read()
+	f.close()
+	keys = s.split(',')
+	index = {}
+	for i in range(len(keys)):
+		index[keys[i]] = i
+	return index
+
+def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
+	'''
+	Creates dictionary that maps zip codes to core based statistical 
+	areas, which are better to block by because they're more likely
+	to capture an individual changing address.
+
+	More info on CBSAs:
+		https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
+
+	Source for data:
+		https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
+	(converted file format from downloaded .xslx)
+
+	Concatonate "cbsa" to the beginning of CBSA code so as to avoid
+	confusion with identical zipcodes
+	'''
+	zip_to_cbsa = {}
+	with open(filename) as f:
+		reader = csv.DictReader(f)
+		for row in reader:
+			zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
+	return zip_to_cbsa
 
 
 class BinaryTree:
