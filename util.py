@@ -1,5 +1,6 @@
 import re
 import csv
+import math
 
 def get_indices_of_keys(filename = "data/indiv_header_file.csv"):
 	'''
@@ -9,11 +10,20 @@ def get_indices_of_keys(filename = "data/indiv_header_file.csv"):
 	f = open(filename)
 	s = f.read()
 	f.close()
+	s = s.strip()
 	keys = s.split(',')
 	index = {}
 	for i in range(len(keys)):
 		index[keys[i]] = i
 	return index
+
+INDEX = get_indices_of_keys()
+def line_to_dict(line):
+	fields = line.split('|')
+	record = {}
+	for key in INDEX:
+		record[key] = fields[INDEX[key]].strip()
+	return record
 
 def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
 	'''
@@ -37,6 +47,25 @@ def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
 		for row in reader:
 			zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
 	return zip_to_cbsa
+
+def get_coordinates(filename = "data/zipcode/zipcode.csv"):
+	zip_to_coord = {}
+	with open(filename) as f:
+		reader = csv.DictReader(f)
+		for row in reader:
+			zipcode = row["zip"]
+			while(len(zipcode) < 5):
+				zipcode = "0" + zipcode
+			zip_to_coord[zipcode] = (row["latitude"], row["longitude"])
+	return zip_to_coord
+
+ZIP_TO_COORD = get_coordinates()
+def calc_distance(zip1, zip2):
+	x1 = float(ZIP_TO_COORD[zip1][0])
+	x2 = float(ZIP_TO_COORD[zip2][0])
+	y1 = float(ZIP_TO_COORD[zip1][1])
+	y2 = float(ZIP_TO_COORD[zip2][1])
+	return math.sqrt(pow(x1 + x2, 2) + pow(y1 + y2, 2))
 
 
 class BinaryTree:
@@ -87,3 +116,4 @@ class BinaryTree:
 					return False
 		else:
 			return False
+
