@@ -48,6 +48,8 @@ def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
 			zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
 	return zip_to_cbsa
 
+ZIP_TO_CBSA = get_CBSAs()
+
 def get_coordinates(filename = "data/zipcode/zipcode.csv"):
 	zip_to_coord = {}
 	with open(filename) as f:
@@ -60,7 +62,7 @@ def get_coordinates(filename = "data/zipcode/zipcode.csv"):
 	return zip_to_coord
 
 ZIP_TO_COORD = get_coordinates()
-def calc_distance(zip1, zip2):
+def calc_dist(zip1, zip2):
 	x1 = float(ZIP_TO_COORD[zip1][0])
 	x2 = float(ZIP_TO_COORD[zip2][0])
 	y1 = float(ZIP_TO_COORD[zip1][1])
