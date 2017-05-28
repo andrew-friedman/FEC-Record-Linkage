@@ -8,8 +8,7 @@ import re
 #################################
 ##      Tuning Parameters      ##
 #################################
-THRESHOLD = 0.88
-W = 0.002 # zip penalty weight
+THRESHOLD = 0.9
 #################################
 #################################
 WORD_RE = re.compile(r"[\w]+")
@@ -65,8 +64,7 @@ class MRMatch(MRJob):
             ljw += li*jw 
             l += li 
         scjw = ljw/l 
-        #zip_penalty = W*calc_dist(r1["ZIP_CODE"][:5], r2["ZIP_CODE"][:5])
-        return scjw #- zip_penalty
+        return scjw 
 
     def match(self, code, lines):
         self.increment_counter('Counts', 'Zip codes', 1)
