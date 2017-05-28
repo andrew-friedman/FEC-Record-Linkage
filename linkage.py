@@ -46,6 +46,13 @@ class MRMatch(MRJob):
         '''
         Calculates the "match score" between the individuals
         in two records
+
+        Instead of the JW similarity score of the entire name string,
+        we break the string down to words and match the words by 
+        which are most likely to be the same (first name, first name)
+        (last name, last name) pair. We do this because there are 
+        inconsistencies in the order names are written in. Then, we 
+        reconstruct the JW score of the full name and return.
         '''
         r1 = line_to_dict(record1)
         r2 = line_to_dict(record2)
