@@ -70,34 +70,26 @@ class MRMatch(MRJob):
         return[
             MRStep(mapper_init = self.cbsa_init,
                 mapper = self.block_on_area,
-                reducer_init = self.line_to_dict_init,
+                reducer_init = self.get_indices_of_keys,
                 reducer = self.match),
             MRStep(reducer_init = self.make_id_generator,
                 reducer = self.generate_ids)
         ]
 
-    def line_to_dict_init(self):
-        self.INDEX = {'AMNDT_IND': 1,
-                    'CITY': 8,
-                    'CMTE_ID': 0,
-                    'EMPLOYER': 11,
-                    'ENTITY_TP': 6,
-                    'FILE_NUM': 17,
-                    'IMAGE_NUM': 4,
-                    'MEMO_CD': 18,
-                    'MEMO_TEXT': 19,
-                    'NAME': 7,
-                    'OCCUPATION': 12,
-                    'OTHER_ID': 15,
-                    'RPT_TP': 2,
-                    'STATE': 9,
-                    'SUB_ID': 20,
-                    'TRANSACTION_AMT': 14,
-                    'TRANSACTION_DT': 13,
-                    'TRANSACTION_PGI': 3,
-                    'TRANSACTION_TP': 5,
-                    'TRAN_ID': 16,
-                    'ZIP_CODE': 10}
+    def get_indices_of_keys(self, filename = "indiv_header_file.csv"):
+        '''
+        Makes a field to key dictionary from the header file for the
+        individual contribution dataset.
+        '''
+        f = open(filename)
+        s = f.read()
+        f.close()
+        s = s.strip()
+        keys = s.split(',')
+        index = {}
+        for i in range(len(keys)):
+            index[keys[i]] = i
+        self.INDEX = index 
 
 
     def get_CBSAs(self, filename = "ZIP_CBSA_032017.csv"):
@@ -125,7 +117,7 @@ class MRMatch(MRJob):
 
     def cbsa_init(self):
         self.ZIP_TO_CBSA = self.get_CBSAs()
-        self.line_to_dict_init()
+        self.get_indices_of_keys()
 
     def line_to_dict(self, line):
         fields = line.split('|')
@@ -209,7 +201,7 @@ class MRMatch(MRJob):
 
     def make_id_generator(self):
         self.next_id = 0
-        self.line_to_dict_init()
+        self.get_indices_of_keys()
 
     def generate_ids(self, key, hashvals):
         self.increment_counter('Counts', 'Individuals', 1)
