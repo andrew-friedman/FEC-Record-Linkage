@@ -36,11 +36,11 @@ class MRMatch(MRJob):
             else:
                 if val > self.val:
                     if self.g is None:
-                        self.g = BinaryTree()
+                        self.g = MRMatch.BinaryTree()
                     self.g.add(val)
                 elif val < self.val:
                     if self.l is None:
-                        self.l = BinaryTree()
+                        self.l = MRMatch.BinaryTree()
                     self.l.add(val)
 
         def contains(self, val):
