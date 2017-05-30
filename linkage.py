@@ -80,7 +80,10 @@ class MRMatch(MRJob):
         '''
         self.increment_counter('Counts', 'Donations', 1)
         record = self.line_to_dict(line)
-        zipcode = record["ZIP_CODE"][:5]
+        try:
+            zipcode = record["ZIP_CODE"][:5]
+        except:
+            zipcode = "Invalid Zip"
         yield zipcode, line
 
     def m_score(self, record1, record2):
