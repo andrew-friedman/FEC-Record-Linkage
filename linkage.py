@@ -69,9 +69,7 @@ class MRMatch(MRJob):
             MRStep(mapper_init = self.get_indices_of_keys,
                 mapper = self.block_on_area,
                 reducer_init = self.get_indices_of_keys,
-                reducer = self.match),
-            MRStep(reducer_init = self.make_id_generator,
-                reducer = self.generate_ids)
+                reducer = self.match)
         ]
 
     def get_indices_of_keys(self):
@@ -79,7 +77,7 @@ class MRMatch(MRJob):
         Makes a field to key dictionary from the header file for the
         individual contribution dataset.
         '''
-        self.INDEX = {'NAME': 7, 'ZIP_CODE': 10} 
+        self.INDEX = {'NAME': 7, 'ZIP_CODE': 10, 'SUB_ID': 20} 
 
 
     def line_to_dict(self, line):
@@ -152,17 +150,8 @@ class MRMatch(MRJob):
                     if p[0] != p[1]:
                         matched.add(p[1])
                         self.increment_counter('Counts', 'Matches', 1)
-                    yield hash(p[0]), hash(p[1])
-
-    def make_id_generator(self):
-        self.next_id = 0
-        self.get_indices_of_keys()
-
-    def generate_ids(self, key, hashvals):
-        self.increment_counter('Counts', 'Individuals', 1)
-        for h in hashvals:
-            yield h, self.next_id
-        self.next_id += 1
+                    r = self.line_to_dict(p[1])
+                    yield hash(p[0]), r['SUB_ID']
 
 if __name__ == '__main__':
     MRMatch.run()
