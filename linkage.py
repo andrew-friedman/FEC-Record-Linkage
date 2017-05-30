@@ -13,29 +13,27 @@ THRESHOLD = 0.9
 #################################
 WORD_RE = re.compile(r"[\w]+")
 
-def get_indices_of_keys(filename = "indiv_header_file.csv"):
-    '''
-    Makes a field to key dictionary from the header file for the
-    individual contribution dataset.
-    '''
-    f = open(filename)
-    s = f.read()
-    f.close()
-    s = s.strip()
-    keys = s.split(',')
-    index = {}
-    for i in range(len(keys)):
-        index[keys[i]] = i
-    return index
-
-INDEX = get_indices_of_keys()
-
-def line_to_dict(line):
-    fields = line.split('|')
-    record = {}
-    for key in INDEX:
-        record[key] = fields[INDEX[key]].strip()
-    return record
+INDEX = {'AMNDT_IND': 1,
+ 'CITY': 8,
+ 'CMTE_ID': 0,
+ 'EMPLOYER': 11,
+ 'ENTITY_TP': 6,
+ 'FILE_NUM': 17,
+ 'IMAGE_NUM': 4,
+ 'MEMO_CD': 18,
+ 'MEMO_TEXT': 19,
+ 'NAME': 7,
+ 'OCCUPATION': 12,
+ 'OTHER_ID': 15,
+ 'RPT_TP': 2,
+ 'STATE': 9,
+ 'SUB_ID': 20,
+ 'TRANSACTION_AMT': 14,
+ 'TRANSACTION_DT': 13,
+ 'TRANSACTION_PGI': 3,
+ 'TRANSACTION_TP': 5,
+ 'TRAN_ID': 16,
+ 'ZIP_CODE': 10}
 
 def get_CBSAs(filename = "ZIP_CBSA_032017.csv"):
     '''
@@ -123,6 +121,13 @@ class MRMatch(MRJob):
                 reducer = self.generate_ids)
         ]
 
+    def line_to_dict(self, line):
+        fields = line.split('|')
+        record = {}
+        for key in INDEX:
+            record[key] = fields[INDEX[key]].strip()
+        return record
+
     def block_on_area(self, _, line):
         '''
         We use CBSA code if available and otherwise zip code as key 
@@ -130,7 +135,7 @@ class MRMatch(MRJob):
         of our ability, accounting for movement within a region.
         '''
         self.increment_counter('Counts', 'Donations', 1)
-        record = line_to_dict(line)
+        record = self.line_to_dict(line)
         zipcode = record["ZIP_CODE"][:5]
         try:
             cbsa = ZIP_TO_CBSA[zipcode]
@@ -154,8 +159,8 @@ class MRMatch(MRJob):
         inconsistencies in the order names are written in. Then, we 
         reconstruct the JW score of the full name and return.
         '''
-        r1 = line_to_dict(record1)
-        r2 = line_to_dict(record2)
+        r1 = self.line_to_dict(record1)
+        r2 = self.line_to_dict(record2)
         ljw = 0
         l = 0
         for word1 in WORD_RE.findall(r1["NAME"]):
