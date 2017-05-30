@@ -35,6 +35,30 @@ INDEX = {'AMNDT_IND': 1,
  'TRAN_ID': 16,
  'ZIP_CODE': 10}
 
+def get_CBSAs(filename = "ZIP_CBSA_032017.csv"):
+    '''
+    Creates dictionary that maps zip codes to core based statistical 
+    areas, which are better to block by because they're more likely
+    to capture an individual changing address.
+
+    More info on CBSAs:
+        https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
+
+    Source for data:
+        https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
+    (converted file format from downloaded .xslx)
+
+    Concatonate "cbsa" to the beginning of CBSA code so as to avoid
+    confusion with identical zipcodes
+    '''
+    zip_to_cbsa = {}
+    with open(filename) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
+    return zip_to_cbsa
+
+
 class BinaryTree:
     '''
     An object that can keep track of and quickly check whether 
@@ -90,35 +114,15 @@ class MRMatch(MRJob):
 
     def steps(self):
         return[
-            MRStep(mapper_init = self.get_CBSAs,
+            MRStep(mapper_init = self.cbsa_init,
                 mapper = self.block_on_area,
                 reducer = self.match),
             MRStep(reducer_init = self.make_id_generator,
                 reducer = self.generate_ids)
         ]
 
-    def get_CBSAs(filename = "ZIP_CBSA_032017.csv"):
-    '''
-    Creates dictionary that maps zip codes to core based statistical 
-    areas, which are better to block by because they're more likely
-    to capture an individual changing address.
-
-    More info on CBSAs:
-        https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
-
-    Source for data:
-        https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
-    (converted file format from downloaded .xslx)
-
-    Concatonate "cbsa" to the beginning of CBSA code so as to avoid
-    confusion with identical zipcodes
-    '''
-        zip_to_cbsa = {}
-        with open(filename) as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
-        self.ZIP_TO_CBSA =  zip_to_cbsa
+    def cbsa_init(self):
+        self.ZIP_TO_CBSA = get_CBSAs()
 
     def line_to_dict(self, line):
         fields = line.split('|')
@@ -126,7 +130,6 @@ class MRMatch(MRJob):
         for key in INDEX:
             record[key] = fields[INDEX[key]].strip()
         return record
-
 
     def block_on_area(self, _, line):
         '''
@@ -138,7 +141,7 @@ class MRMatch(MRJob):
         record = self.line_to_dict(line)
         zipcode = record["ZIP_CODE"][:5]
         try:
-            cbsa = self.ZIP_TO_CBSA[zipcode]
+            cbsa = ZIP_TO_CBSA[zipcode]
         except: # zipcodes get retired and whatnot
             self.increment_counter('Errors', 'Zip code to CBSA', 1)
             cbsa = "cbsa99999"
