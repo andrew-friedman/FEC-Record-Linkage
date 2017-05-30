@@ -78,7 +78,7 @@ class MRMatch(MRJob):
         to effectively block on geographical area while, to the best
         of our ability, accounting for movement within a region.
         '''
-        self.increment_counter('Counts', 'Donations', 1)
+        #self.increment_counter('Counts', 'Donations', 1)
         record = self.line_to_dict(line)
         try:
             zipcode = record["ZIP_CODE"][:5]
@@ -117,7 +117,7 @@ class MRMatch(MRJob):
         scjw = ljw/l 
         return scjw 
 
-    def redcuer(self, code, lines): # match records
+    def reducer(self, code, lines): # match records
         self.increment_counter('Counts', 'Zip codes', 1)
         matched = self.BinaryTree() # records which entries 
                             #have already been matched
