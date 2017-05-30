@@ -68,7 +68,7 @@ class MRMatch(MRJob):
 
     def steps(self):
         return[
-            MRStep(mapper_init = self.cbsa_init,
+            MRStep(mapper_init = self.get_indices_of_keys,
                 mapper = self.block_on_area,
                 reducer_init = self.get_indices_of_keys,
                 reducer = self.match),
@@ -76,48 +76,13 @@ class MRMatch(MRJob):
                 reducer = self.generate_ids)
         ]
 
-    def get_indices_of_keys(self, filename = "indiv_header_file.csv"):
+    def get_indices_of_keys(self):
         '''
         Makes a field to key dictionary from the header file for the
         individual contribution dataset.
         '''
-        f = open(filename)
-        s = f.read()
-        f.close()
-        s = s.strip()
-        keys = s.split(',')
-        index = {}
-        for i in range(len(keys)):
-            index[keys[i]] = i
-        self.INDEX = index 
+        self.INDEX = {'NAME': 7, 'ZIP_CODE': 10} 
 
-
-    def get_CBSAs(self, filename = "ZIP_CBSA_032017.csv"):
-        '''
-        Creates dictionary that maps zip codes to core based statistical 
-        areas, which are better to block by because they're more likely
-        to capture an individual changing address.
-
-        More info on CBSAs:
-            https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
-
-        Source for data:
-            https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
-        (converted file format from downloaded .xslx)
-
-        Concatonate "cbsa" to the beginning of CBSA code so as to avoid
-        confusion with identical zipcodes
-        '''
-        zip_to_cbsa = {}
-        with open(filename) as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
-        return zip_to_cbsa
-
-    def cbsa_init(self):
-        self.ZIP_TO_CBSA = self.get_CBSAs()
-        self.get_indices_of_keys()
 
     def line_to_dict(self, line):
         fields = line.split('|')
@@ -135,15 +100,7 @@ class MRMatch(MRJob):
         self.increment_counter('Counts', 'Donations', 1)
         record = self.line_to_dict(line)
         zipcode = record["ZIP_CODE"][:5]
-        try:
-            cbsa = ZIP_TO_CBSA[zipcode]
-        except: # zipcodes get retired and whatnot
-            self.increment_counter('Errors', 'Zip code to CBSA', 1)
-            cbsa = "cbsa99999"
-        if cbsa != "cbsa99999":
-            yield cbsa, line
-        else:
-            yield zipcode, line
+        yield zipcode, line
 
     def m_score(self, record1, record2):
         '''
