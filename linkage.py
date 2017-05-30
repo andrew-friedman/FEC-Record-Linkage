@@ -64,30 +64,15 @@ class MRMatch(MRJob):
             else:
                 return False
 
-    def steps(self):
-        return[
-            MRStep(mapper_init = self.get_indices_of_keys,
-                mapper = self.block_on_area,
-                reducer_init = self.get_indices_of_keys,
-                reducer = self.match)
-        ]
-
-    def get_indices_of_keys(self):
-        '''
-        Makes a field to key dictionary from the header file for the
-        individual contribution dataset.
-        '''
-        self.INDEX = {'NAME': 7, 'ZIP_CODE': 10, 'SUB_ID': 20} 
-
-
     def line_to_dict(self, line):
+        INDEX = {'NAME': 7, 'ZIP_CODE': 10, 'SUB_ID': 20} 
         fields = line.split('|')
         record = {}
-        for key in self.INDEX:
-            record[key] = fields[self.INDEX[key]].strip()
+        for key in INDEX:
+            record[key] = fields[INDEX[key]].strip()
         return record
 
-    def block_on_area(self, _, line):
+    def mapper(self, _, line): # block on area
         '''
         We use CBSA code if available and otherwise zip code as key 
         to effectively block on geographical area while, to the best
@@ -129,7 +114,7 @@ class MRMatch(MRJob):
         scjw = ljw/l 
         return scjw 
 
-    def match(self, code, lines):
+    def redcuer(self, code, lines): # match records
         self.increment_counter('Counts', 'Zip codes', 1)
         matched = self.BinaryTree() # records which entries 
                             #have already been matched
