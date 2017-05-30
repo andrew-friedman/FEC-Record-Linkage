@@ -35,29 +35,6 @@ INDEX = {'AMNDT_IND': 1,
  'TRAN_ID': 16,
  'ZIP_CODE': 10}
 
-def get_CBSAs(filename = "ZIP_CBSA_032017.csv"):
-    '''
-    Creates dictionary that maps zip codes to core based statistical 
-    areas, which are better to block by because they're more likely
-    to capture an individual changing address.
-
-    More info on CBSAs:
-        https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
-
-    Source for data:
-        https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
-    (converted file format from downloaded .xslx)
-
-    Concatonate "cbsa" to the beginning of CBSA code so as to avoid
-    confusion with identical zipcodes
-    '''
-    zip_to_cbsa = {}
-    with open(filename) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
-    return zip_to_cbsa
-
 
 class BinaryTree:
     '''
@@ -121,8 +98,31 @@ class MRMatch(MRJob):
                 reducer = self.generate_ids)
         ]
 
+    def get_CBSAs(self, filename = "ZIP_CBSA_032017.csv"):
+        '''
+        Creates dictionary that maps zip codes to core based statistical 
+        areas, which are better to block by because they're more likely
+        to capture an individual changing address.
+
+        More info on CBSAs:
+            https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
+
+        Source for data:
+            https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
+        (converted file format from downloaded .xslx)
+
+        Concatonate "cbsa" to the beginning of CBSA code so as to avoid
+        confusion with identical zipcodes
+        '''
+        zip_to_cbsa = {}
+        with open(filename) as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
+        return zip_to_cbsa
+
     def cbsa_init(self):
-        self.ZIP_TO_CBSA = get_CBSAs()
+        self.ZIP_TO_CBSA = self.get_CBSAs()
 
     def line_to_dict(self, line):
         fields = line.split('|')
