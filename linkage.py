@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from mrjob.job import MRJob
 from mrjob.step import MRStep
 from itertools import combinations_with_replacement
@@ -118,7 +119,7 @@ class MRMatch(MRJob):
         return scjw 
 
     def reducer(self, code, lines): # match records
-        self.increment_counter('Counts', 'Zip codes', 1)
+        #self.increment_counter('Counts', 'Zip codes', 1)
         matched = self.BinaryTree() # records which entries 
                             #have already been matched
         # try matching unmatched lines against every subsequent line
@@ -127,7 +128,7 @@ class MRMatch(MRJob):
             if not matched.contains(p[0]) and not matched.contains(p[1]):
                 if p[0] == p[1]:
                     m = THRESHOLD
-                    self.increment_counter('Counts', 'Self Matched', 1)
+                    #self.increment_counter('Counts', 'Self Matched', 1)
                 else:
                     try:
                         m = self.m_score(p[0], p[1])
