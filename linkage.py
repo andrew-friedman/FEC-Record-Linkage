@@ -73,28 +73,6 @@ class MRMatch(MRJob):
             record[key] = fields[INDEX[key]].strip()
         return record
 
-    def mapper_init(self, filename = "ZIP_CBSA_032017.csv"):
-        '''
-        Creates dictionary that maps zip codes to core based statistical 
-        areas, which are better to block by because they're more likely
-        to capture an individual changing address.
-
-        More info on CBSAs:
-            https://www.census.gov/geo/reference/gtc/gtc_cbsa.html
-
-        Source for data:
-            https://www.huduser.gov/portal/datasets/usps_crosswalk.html#data
-        (converted file format from downloaded .xslx)
-
-        Concatonate "cbsa" to the beginning of CBSA code so as to avoid
-        confusion with identical zipcodes
-        '''
-        zip_to_cbsa = {}
-        with open(filename) as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                zip_to_cbsa[row["ZIP"]] = "cbsa" + row["CBSA"]
-        self.ZIP_TO_CBSA = zip_to_cbsa
 
     def mapper(self, _, line): # block on area
         '''
@@ -102,18 +80,12 @@ class MRMatch(MRJob):
         to effectively block on geographical area while, to the best
         of our ability, accounting for movement within a region.
         '''
-        self.increment_counter('Counts', 'Donations', 1)
         record = self.line_to_dict(line)
-        zipcode = record["ZIP_CODE"][:5]
         try:
-            cbsa = self.ZIP_TO_CBSA[zipcode]
-        except: # zipcodes get retired and whatnot
-            self.increment_counter('Errors', 'Zip code to CBSA', 1)
-            cbsa = "cbsa99999"
-        if cbsa != "cbsa99999":
-            yield cbsa, line
-        else:
-            yield zipcode, line
+            zipcode = record["ZIP_CODE"][:5]
+        except:
+            zipcode = "Invalid Zip"
+        yield zipcode, line
 
     def m_score(self, record1, record2):
         '''
