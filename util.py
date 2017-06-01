@@ -50,7 +50,7 @@ def get_CBSAs(filename = "ZIP_CBSA_032017.csv"):
 
 ZIP_TO_CBSA = get_CBSAs()
 
-def get_coordinates(filename = "zipcode/zipcode.csv"):
+def get_coordinates(filename = "zipcode.csv"):
 	zip_to_coord = {}
 	with open(filename) as f:
 		reader = csv.DictReader(f)
