@@ -1,8 +1,7 @@
 import re
 import csv
-import math
 
-def get_indices_of_keys(filename = "data/indiv_header_file.csv"):
+def get_indices_of_keys(filename = "indiv_header_file.csv"):
 	'''
 	Makes a field to key dictionary from the header file for the
 	individual contribution dataset.
@@ -25,7 +24,7 @@ def line_to_dict(line):
 		record[key] = fields[INDEX[key]].strip()
 	return record
 
-def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
+def get_CBSAs(filename = "ZIP_CBSA_032017.csv"):
 	'''
 	Creates dictionary that maps zip codes to core based statistical 
 	areas, which are better to block by because they're more likely
@@ -49,25 +48,6 @@ def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
 	return zip_to_cbsa
 
 ZIP_TO_CBSA = get_CBSAs()
-
-def get_coordinates(filename = "data/zipcode/zipcode.csv"):
-	zip_to_coord = {}
-	with open(filename) as f:
-		reader = csv.DictReader(f)
-		for row in reader:
-			zipcode = row["zip"]
-			while(len(zipcode) < 5):
-				zipcode = "0" + zipcode
-			zip_to_coord[zipcode] = (row["latitude"], row["longitude"])
-	return zip_to_coord
-
-ZIP_TO_COORD = get_coordinates()
-def calc_dist(zip1, zip2):
-	x1 = float(ZIP_TO_COORD[zip1][0])
-	x2 = float(ZIP_TO_COORD[zip2][0])
-	y1 = float(ZIP_TO_COORD[zip1][1])
-	y2 = float(ZIP_TO_COORD[zip2][1])
-	return math.sqrt(pow(x1 + x2, 2) + pow(y1 + y2, 2))
 
 
 class BinaryTree:
