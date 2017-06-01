@@ -16,6 +16,21 @@ def write_results(db, colName1, colName2, tableName, resultsFile):
 	f.close()
 	db.commit()
 
+
+def convert_date(date):
+	'''
+	Converts MMDDYYYY to YYYY-MM-DD
+	'''
+	try:
+		month = date[:2]
+		day = date[2:4]
+		year = date[4:]
+		return year + '-' + month + '-' + day
+	except Exception as e:
+		print(e)
+		return None
+
+
 def write_data(db, tableName = 'indiv16', dataFile = 'itcont.txt', 
 	headerFile = "indiv_header_file.csv"):
 	'''
@@ -55,6 +70,8 @@ def write_data(db, tableName = 'indiv16', dataFile = 'itcont.txt',
 	f = open(dataFile)
 	for line in f:
 		record = line_to_dict(line)
+		record['TRANSACTION_AMT'] = float(record['TRANSACTION_AMT'])
+		record['TRANSACTION_DT'] = convert_date(record['TRANSACTION_DT'])
 		db.execute(query, record)
 	f.close()
 	db.commit()
