@@ -6,7 +6,7 @@ def write_results(db, colName1, colName2, tableName, resultsFile):
 	query += colName1 + " text, "
 	query += colName2 + " text)"
 	db.execute(query)
-	
+	query = "INSERT INTO " + tableName + " VALUES (?, ?)"
 	f = open(resultsFile)
 	for line in f:
 		line = line.strip()
@@ -14,7 +14,6 @@ def write_results(db, colName1, colName2, tableName, resultsFile):
 		t = (l[0], l[1].strip('\"'))
 		db.execute(query, t)
 	f.close()
-	db.commit()
 
 
 def convert_date(date):
@@ -31,7 +30,7 @@ def convert_date(date):
 		return None
 
 
-def write_data(db, tableName = 'indiv16', dataFile = 'itcont.txt', 
+def write_data(db, tableName = 'donations', dataFile = 'test.txt', 
 	headerFile = "indiv_header_file.csv"):
 	'''
 	Writes FEC data to its own table
@@ -74,7 +73,17 @@ def write_data(db, tableName = 'indiv16', dataFile = 'itcont.txt',
 		record['TRANSACTION_DT'] = convert_date(record['TRANSACTION_DT'])
 		db.execute(query, record)
 	f.close()
-	db.commit()
+
+if __name__ == '__main__':
+    conn = sqlite3.connect("donations.db")
+    db = conn.cursor()
+    write_data(db)
+    conn.commit()
+    write_results(db, "donor_ID", "SUB_ID", "donors", "results.txt")
+    conn.commit()
+    conn.close()
+
+
 
 
 
