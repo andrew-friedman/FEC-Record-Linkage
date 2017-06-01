@@ -30,7 +30,7 @@ def convert_date(date):
 		return None
 
 
-def write_data(db, tableName = 'donations', dataFile = 'test.txt', 
+def write_data(db, tableName = 'donations', dataFile = 'itcont.txt', 
 	headerFile = "indiv_header_file.csv"):
 	'''
 	Writes FEC data to its own table
