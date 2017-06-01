@@ -2,7 +2,7 @@ import re
 import csv
 import math
 
-def get_indices_of_keys(filename = "data/indiv_header_file.csv"):
+def get_indices_of_keys(filename = "indiv_header_file.csv"):
 	'''
 	Makes a field to key dictionary from the header file for the
 	individual contribution dataset.
@@ -25,7 +25,7 @@ def line_to_dict(line):
 		record[key] = fields[INDEX[key]].strip()
 	return record
 
-def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
+def get_CBSAs(filename = "ZIP_CBSA_032017.csv"):
 	'''
 	Creates dictionary that maps zip codes to core based statistical 
 	areas, which are better to block by because they're more likely
@@ -50,7 +50,7 @@ def get_CBSAs(filename = "data/ZIP_CBSA_032017.csv"):
 
 ZIP_TO_CBSA = get_CBSAs()
 
-def get_coordinates(filename = "data/zipcode/zipcode.csv"):
+def get_coordinates(filename = "zipcode/zipcode.csv"):
 	zip_to_coord = {}
 	with open(filename) as f:
 		reader = csv.DictReader(f)
