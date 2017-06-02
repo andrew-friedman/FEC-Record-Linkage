@@ -22,16 +22,20 @@ class MRJPercentages(MRJob):
         self.DESIGNATIONS = self.get_designations()
         
     def mapper(self, _, line):
-        l = line.split('|')
-        CMTE_ID = l[0]
-        TRANSACTION_AMT = abs(float(l[14]))
-        self.increment_counter('Transaction amt', TRANSACTION_AMT, 1)
-        assert TRANSACTION_AMT != 0
-        CAND_ID = l[16]
-        if self.DESIGNATIONS[CMTE_ID]: # is principal comm
-            yield CAND_ID, (TRANSACTION_AMT, 0)
-        else:
-            yield CAND_ID, (0, TRANSACTION_AMT)
+        try:
+            l = line.split('|')
+            CMTE_ID = l[0]
+            TRANSACTION_AMT = abs(float(l[14]))
+            #self.increment_counter('Transaction amt', TRANSACTION_AMT, 1)
+            assert TRANSACTION_AMT != 0
+            CAND_ID = l[16]
+            if self.DESIGNATIONS[CMTE_ID]: # is principal comm
+                yield CAND_ID, (TRANSACTION_AMT, 0)
+            else:
+                yield CAND_ID, (0, TRANSACTION_AMT)
+        except Exception as e:
+            self.increment_counter("Errors", e, 1)
+
     
     def combiner(self, CAND_ID, amt):
         p = 0
