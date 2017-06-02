@@ -4,11 +4,6 @@
 from mrjob.job import MRJob
 
 class MRJob_reduce(MRJob):
-  
-
-    def mapper_init(self):
-        self.threshold = 200
-        self.count = 0
 
     def mapper(self, _, line):
         """
@@ -19,10 +14,7 @@ class MRJob_reduce(MRJob):
         indiv_list = line.split("|")
         c_id = indiv_list[0]
         trans_amount = float(indiv_list[14])
-        if trans_amount >= self.threshold:
-            self.count += 1
-            print(self.count)
-            yield c_id, trans_amount
+        yield c_id, trans_amount
 
     def combiner(self, c_id, trans_amount):
         """
@@ -30,8 +22,6 @@ class MRJob_reduce(MRJob):
           key: a string, candidate or PAC ID
           value: a float, donation amount
         """
-        print(trans_amount)
-
         sum_transactions = sum(trans_amount)
         yield c_id, sum_transactions
 
