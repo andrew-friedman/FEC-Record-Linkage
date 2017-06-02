@@ -20,8 +20,8 @@ zipcodes = ('60601', '60602', '60603', '60604', '60605',
 
 conn = sqlite3.connect("donations.db")
 db = conn.cursor()
-out = db.execute('''SELECT ZIP_CODE, OCCUPATION, SUM(TRANSACTION_AMT) FROM 
-                donors JOIN 
+out = db.execute('''SELECT ZIP_CODE, GROUP_CONCAT(OCCUPATION), SUM(TRANSACTION_AMT) 
+                FROM donors JOIN 
                     (SELECT * FROM donations WHERE ZIP_CODE IN (%s))
                 USING (SUB_ID) 
                 GROUP BY donor_ID'''%','.join('?'*len(zipcodes)), zipcodes)
