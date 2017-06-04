@@ -350,7 +350,6 @@ class MRJob_data(MRJob):
             if indiv_Zip[0:5] in self.chicago_zip_codes:
                 if len(indiv_Zip) > 5:
                     indiv_Zip = indiv_Zip[0:5] + '-' + indiv_Zip[5:]
-                print("mapper")
                 yield line, indiv_Zip
 
     def combiner(self, line, zip_code):
@@ -378,7 +377,6 @@ class MRJob_data(MRJob):
         '''
         line_spilt = line.split("|")
         length_line = len(line_spilt)
-        print(line_spilt[4])
         if length_line >= 16:
             indiv_Zip = "".join(zip_code)
             indiv_ID = line_spilt[16]
@@ -386,7 +384,6 @@ class MRJob_data(MRJob):
             indiv_Name = reformats_name(line_spilt[7])
             sub_ID = line_spilt[20]
             address = process(image_number, indiv_ID, indiv_Name, indiv_Zip)
-            print(address)
             yield sub_ID, address
 
 if __name__ == '__main__':
