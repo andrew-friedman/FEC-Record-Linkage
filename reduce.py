@@ -1,6 +1,3 @@
-# python3 reduce.py --jobconf mapreduce.job.reduces=1 data.csv
-# python3 scrapper.py --jobconf mapreduce.job.reduces=1 test.txt
-
 from mrjob.job import MRJob
 
 class MRJob_reduce(MRJob):
