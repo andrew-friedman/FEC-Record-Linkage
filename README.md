@@ -9,4 +9,4 @@ Data sources:
 
 Collaboration between John Veillette and Andrew Friedman*
 
-All commits from ar0r were written by Andrew Friedman
+*All commits from ar0r were written by Andrew Friedman
